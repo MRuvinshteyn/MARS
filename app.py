@@ -10,16 +10,42 @@ HW07 -- Do I Know You?
 from flask import Flask, render_template, redirect, url_for, request, session
 import os
 
+html_logged = '''
+<html><body>
+You have been logged in!<br><br>
+<a href = '/'>Return to the homepage to see your success</a>
+</body></html>
+'''
+
+html_fail = '''
+<html><body>
+Your credentials were incorrect.<br><br>
+<a href = '/'>Try again</a>
+</body></html>
+'''
+
 app = Flask(__name__)
+
+app.secret_key = os.urandom(32)
 
 @app.route('/')
 def home():
-    app.secret_key = os.urandom(32)
-    if session.has_key('username') == False:
-        return render_template('login.html')
-    else:
-        session['username'] = request.args['username']
-        return render_template('welcome.html', UN = session['username'])
+    if session.has_key('username') == True: #renders welcome page if a 'username' key exists
+        return render_template('welcome.html',UN = session['username'])
+    return render_template('login.html') #otherwise renders the login page
+
+@app.route('/login', methods=['POST']) #uses POST method for form submission
+def login():
+    if request.form['username'] == 'admin': #the only correct username is "admin"
+        if request.form['password'] == 'password': #the only correct password is "password"
+            session['username'] = 'admin' #sets the 'username' key to something so that it can be recognized
+            return html_logged #tells the user they are logged in
+    return html_fail #otherwise tells the user their credentials were incorrect
+
+@app.route('/logout')
+def logout():
+    session.clear() #clears the session to remove the 'username' key
+    return redirect(url_for('home')) #redirects user back to homepage
 
 if __name__ == '__main__':
     app.debug = True
