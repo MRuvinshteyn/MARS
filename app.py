@@ -10,20 +10,6 @@ HW07 -- Do I Know You?
 from flask import Flask, render_template, redirect, url_for, request, session
 import os
 
-html_logged = '''
-<html><body>
-You have been logged in!<br><br>
-<a href = '/'>Return to the homepage to see your success</a>
-</body></html>
-'''
-
-html_fail = '''
-<html><body>
-Your credentials were incorrect.<br><br>
-<a href = '/'>Try again</a>
-</body></html>
-'''
-
 app = Flask(__name__)
 
 app.secret_key = os.urandom(32)
@@ -39,8 +25,8 @@ def login():
     if request.form['username'] == 'admin': #the only correct username is "admin"
         if request.form['password'] == 'password': #the only correct password is "password"
             session['username'] = 'admin' #sets the 'username' key to something so that it can be recognized
-            return html_logged #tells the user they are logged in
-    return html_fail #otherwise tells the user their credentials were incorrect
+            return render_template('login_success.html') #tells the user they are logged in
+    return render_template('login_fail.html') #otherwise tells the user their credentials were incorrect
 
 @app.route('/logout')
 def logout():
